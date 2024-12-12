@@ -1,8 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from functools import reduce
-from tabulate import tabulate
 
 
 # Load the Excel file
