@@ -7,7 +7,7 @@ from tabulate import tabulate
 
 # Load the Excel file
 input_file = "datasets/StudentGradesAndPrograms.xlsx"
-output_file = "formatted_file.csv"
+output_file = "formatting_file.csv"
 
 
 # Read the CSV file
@@ -29,7 +29,7 @@ print(dataset_headers)
 # Create the tabular table
 table = tabulate(dataset, headers=dataset_headers, tablefmt="grid")
 
-file = open('table_file.txt', 'w', encoding='utf-8')
+file = open('data_table_file.txt', 'w', encoding='utf-8')
 file.write(table)
 file.close()
 
@@ -50,7 +50,7 @@ print(data_types)
 
 
 """
-How does the average grade percentage vary across different class types (e.g., ENG, MAT, SCI, SOC)?
+- How does the average grade percentage vary across different class types (e.g., ENG, MAT, SCI, SOC)?
 
 """
 # Group by classType and calculate the average gradePercentage
@@ -76,77 +76,9 @@ plt.xticks(rotation=0)
 plt.show()
 
 
-""" 
-What is the grade percentage distribution for each school?
 
 """
-import seaborn as sns
-import plotly.express as px
-
-# Load the data
-dataset = pd.read_csv(output_file, header=1, names=["schoolyear", "gradeLevel", "classPeriod", "classType", "schoolName", "gradePercentage", "avid", "sped", "migrant", "ell", "student_ID"])
-
-
-# Group by school and calculate summary statistics
-summary_stats = dataset.groupby('schoolName')['gradePercentage'].agg(['mean', 'median', 'std', 'count'])
-
-
-# Print the summary table
-print(summary_stats)
-
-# Aggregate the Data
-
-""" 
-Group the data by school and compute summary statistics
-like the average, median, or standard deviation of grade percentages. 
-This provides an overview without visualizing each individual grade.
-
-"""
-with open('summary_stats.txt', 'w', encoding='utf-8') as statfile:
-    statfile.write(summary_stats.to_string(index=False, header=True))
-    statfile.close()
-
-
-
-"""
-Do students with special education needs (sped = Y) perform differently compared to other students?
-"""
-# Create the plot
-plt.figure(figsize=(8, 6))
-sns.boxplot(x='sped', y='gradePercentage', data=dataset, palette='Set2')
-
-
-# Add labels and title
-plt.title('Grade Percentage Distribution by Special Education Needs', fontsize=14)
-plt.xlabel('Special Education Needs (sped)', fontsize=12)
-plt.ylabel('Grade Percentage', fontsize=12)
-
-"""
-This boxplot will show the distribution of grade percentages 
-for students with and without special education needs(sped = Y and sped = N)
-
-"""
-plt.show()
-
-
-# Group the data by 'sped' and calculate the mean grade percentage
-mean_grades = dataset.groupby('sped')['gradePercentage'].mean()
-
-
-# Create the bar chart
-mean_grades.plot(kind='bar', color=['skyblue', 'salmon'], figsize=(8, 6))
-
-
-# Add labels and title
-plt.title('Mean Grade Percentage by Special Education Needs', fontsize=14)
-plt.xlabel('Special Education Needs (sped)', fontsize=12)
-plt.ylabel('Mean Grade Percentage', fontsize=12)
-plt.xticks(rotation=0)
-plt.show()
-
-
-"""
-How do grade percentages differ for English learners (ell = Y) versus non-English learners?
+- How do grade percentages differ for English learners (ell = Y) versus non-English learners?
 
 """
 
@@ -175,98 +107,78 @@ plt.show()
 
 
 """ 
-Which grade level performs better overall across the two schools?
+- Is there a performance gap between migrant students (migrant = Y) and non-migrant students (migrant = N)?
+
 """
 
-# Calculate average grade % grouped by school and grade level
-grade_level_performance = df.groupby(['schoolName', 'gradeLevel'])['gradePercentage'].mean().reset_index()
-
-print(grade_level_performance)
-
-grade_level_performance['gradePercentage'] = grade_level_performance['gradePercentage'].round(2)
-
-# Create a bar plot to compare grade-level performance across schools
-plt.figure(figsize=(12, 8))
-sns.barplot(x='gradeLevel', y='gradePercentage', hue='schoolName', data=grade_level_performance, palette='Set2')
+# Extract data for migrant and non-migrant students
+migrant_grades = dataset[dataset['migrant'] == 'Y']['gradePercentage']
+non_migrant_grades = dataset[dataset['migrant'] == 'N']['gradePercentage']
 
 
-# Add labels and title
-plt.title('Grade-Level Performance Across Schools', fontsize=16)
-plt.xlabel('Grade Level', fontsize=14)
-plt.ylabel('Average Grade Percentage', fontsize=14)
-plt.legend(title='School Name', fontsize=12)
-plt.xticks(fontsize=12)
-plt.yticks(fontsize=12)
+# Histogram
+plt.figure(figsize=(8, 6))
+plt.hist(non_migrant_grades, bins=10, alpha=0.6, label='Non-Migrant (N)', color='lightskyblue', edgecolor='black')
+plt.hist(migrant_grades, bins=10, alpha=0.6, label='Migrant (Y)', color='lightsalmon', edgecolor='black')
+
+
+# Customize the Histogram
+plt.title('Distribution of Grades for Migrant vs Non-Migrant Students', fontsize=14)
+plt.xlabel('Grade Percentage', fontsize=12)
+plt.ylabel('Frequency', fontsize=12)
+plt.legend(fontsize=10)
 plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+
+# Show the Histogram
 plt.show()
 
 
-with open('grade_level_performance.txt', 'w', encoding='utf-8') as levelfile:
-    levelfile.write(grade_level_performance.to_string(index=False, header=True))
-    levelfile.close()
-
-
 """ 
-How does performance differ between Online Learning School and Allfeather Middle School for specific class types (e.g., ENG, MAT)?
+- Which grade level performs better overall?
+
 """
 
-# Grouping by schoolName and classType, then calculating the mean gradePercentage
-school_performance = df.groupby(['schoolName', 'classType'])['gradePercentage'].mean().reset_index()
+# Calculate the average grade percentage for each grade level
+average_grades_level = dataset.groupby('gradeLevel')['gradePercentage'].mean().reset_index()
+
+# Bar Chart
+plt.figure(figsize=(10, 6))
+plt.bar(average_grades_level['gradeLevel'], average_grades_level['gradePercentage'], color='skyblue', edgecolor='black')
 
 
-# Format the 'gradePercentage' column to 2 d.p.
-school_performance['gradePercentage'] = school_performance['gradePercentage'].round(2)
-
-
-# Creating a grouped bar chart using Plotly
-fig = px.bar(
-    school_performance,
-    x='classType',
-    y='gradePercentage',
-    color='schoolName',
-    barmode='group',
-    title='Average Grade Percentage by Class Type Across Schools',
-    labels={'gradePercentage': 'Average Grade (%)', 'classType': 'Class Type'},
-    text='gradePercentage'
-)
-
-
-# Add data labels
-fig.update_traces(texttemplate='%{text:.2f}%', textposition='outside')
-
-
-# Adjust layout for better readability
-fig.update_layout(
-    xaxis=dict(title='Class Type'),
-    yaxis=dict(title='Average Grade (%)'),
-    legend_title='School Name',
-    legend=dict(orientation='v', title_font=dict(size=10)),
-    width=1200, 
-    height=600
-)
-fig.show()
-
-
-""" 
-Are students who participate in the AVID program (avid = Y) performing better overall?
-"""
-
-avid_performance = df.groupby('avid')['gradePercentage'].mean().reset_index()
-
-avid_performance['gradePercentage'] = avid_performance['gradePercentage'].round(2)
-
-avid_performance['avid'] = avid_performance['avid'].map({1: 'AVID (Yes)', 0: 'AVID (No)'})
-
-plt.figure(figsize=(8, 6))
-sns.barplot(data=avid_performance, x='avid', y='gradePercentage', palette='coolwarm')
-
-plt.title('Comaprison of Grade Percentages by AVID Participation', fontsize=16)
-plt.xlabel('AVID Participation', fontsize=12)
+# Customize the Bar Chart
+plt.title('Average Grade Percentage by Grade Level', fontsize=14)
+plt.xlabel('Grade Level', fontsize=12)
 plt.ylabel('Average Grade Percentage', fontsize=12)
+plt.xticks(ticks=average_grades_level['gradeLevel'], fontsize=10)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
 
-for i, row in avid_performance.iterrows():
-    plt.text(i, row['gradePercentage'] + 1, f"{row['gradePercentage']}%", ha='center', fontsize=10)
+
+# Show the Bar Chart
+plt.show()
 
 
-plt.ylim(1, 100)
+""" 
+- Do students who participate in the AVID program (avid = Y) perform better than non-participants?
+
+"""
+
+# Calculate average grades for AVID participants and non-participants
+avid_avg = dataset.groupby('avid')['gradePercentage'].mean().reset_index()
+
+# Bar Chart for Average Grades
+plt.figure(figsize=(8, 6))
+plt.bar(avid_avg['avid'], avid_avg['gradePercentage'], color=['skyblue', 'lightgreen'], edgecolor='black')
+
+
+# Customize Bar Chart
+plt.title('Average Grade Percentage: AVID Participants vs Non-Participants', fontsize=14)
+plt.xlabel('AVID Participation (Y/N)', fontsize=12)
+plt.ylabel('Average Grade Percentage', fontsize=12)
+plt.xticks(fontsize=10)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+
+# Show Bar Chart
 plt.show()
