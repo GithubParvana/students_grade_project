@@ -2,20 +2,21 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from functools import reduce
+from tabulate import tabulate
 
 
 # Load the Excel file
 input_file = "datasets/StudentGradesAndPrograms.xlsx"
 output_file = "formatting_file.csv"
 
-
 # Read the CSV file
 df = pd.read_excel(input_file)
 
 # Save it as a CSV
 df.to_csv(output_file, index=False)
-
 print(f"File successfully converted to {output_file}")
+
+dataset = pd.read_csv(output_file, header=1, names=["schoolyear", "gradeLevel", "classPeriod", "classType", "schoolName", "gradePercentage", "avid", "sped", "migrant", "ell", "student_ID"])
 
 # ---   Some operation on Datset   ---
 
