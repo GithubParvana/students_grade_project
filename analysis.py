@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from functools import reduce
-from tabulate import tabulate
 
 
 # Load the Excel file
@@ -17,22 +16,6 @@ df = pd.read_excel(input_file)
 df.to_csv(output_file, index=False)
 
 print(f"File successfully converted to {output_file}")
-
-
-#    --- Tabular format  ---
-dataset = pd.read_csv(output_file, header=1, names=["schoolyear", "gradeLevel", "classPeriod", "classType", "schoolName", "gradePercentage", "avid", "sped", "migrant", "ell", "student_ID"])
-
-# get the headers (column names)
-dataset_headers = df.columns.tolist()
-print(dataset_headers)
-
-# Create the tabular table
-table = tabulate(dataset, headers=dataset_headers, tablefmt="grid")
-
-file = open('data_table_file.txt', 'w', encoding='utf-8')
-file.write(table)
-file.close()
-
 
 # ---   Some operation on Datset   ---
 
